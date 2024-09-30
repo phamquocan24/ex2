@@ -1,35 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
-import CustomTextInput from './CustomTextInput'; // Import the custom component
+import React from 'react';
+import { View, Text, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import PhoneNumberInput from './PhoneNumberInput'; // Adjust path if necessary
 
-const PhoneNumberInput = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
-
-  const formatPhoneNumber = (number) => {
-    const cleaned = number.replace(/\D/g, '');
-    const match = cleaned.match(/^(84|0)(\d{9})$/);
-    if (match) {
-      return `+84 ${match[2].substring(0, 3)} ${match[2].substring(3, 6)} ${match[2].substring(6)}`;
-    }
-    return number;
-  };
-
-  const handlePress = () => {
-    if (!validatePhoneNumber(phoneNumber)) {
-      Alert.alert('Số điện thoại không hợp lệ', 'Vui lòng nhập số điện thoại đúng định dạng.');
-      return;
-    }
+const App = () => {
+  const handlePhoneNumberSubmit = (phoneNumber) => {
     console.log('Số điện thoại:', phoneNumber);
-  };
-
-  const validatePhoneNumber = (number) => {
-    const cleaned = number.replace(/\D/g, '');
-    return cleaned.length === 10 || cleaned.length === 11;
-  };
-
-  const handleChangeText = (text) => {
-    const formattedText = formatPhoneNumber(text);
-    setPhoneNumber(formattedText);
+    // Further processing can go here
   };
 
   return (
@@ -41,21 +17,7 @@ const PhoneNumberInput = () => {
         Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại OneHousing Pro
       </Text>
       
-      {/* Use the custom text input component here */}
-      <CustomTextInput
-        placeholder="Nhập số điện thoại của bạn"
-        keyboardType="phone-pad"
-        value={phoneNumber}
-        onChangeText={handleChangeText}
-      />
-
-      <TouchableOpacity 
-        style={[styles.button, validatePhoneNumber(phoneNumber) ? styles.activeButton : styles.disabledButton]} 
-        onPress={handlePress}
-        disabled={!validatePhoneNumber(phoneNumber)}
-      >
-        <Text style={styles.buttonText}>Tiếp tục</Text>
-      </TouchableOpacity>
+      <PhoneNumberInput onPhoneNumberSubmit={handlePhoneNumberSubmit} />
     </KeyboardAvoidingView>
   );
 };
@@ -92,22 +54,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginBottom: 20,
   },
-  button: {
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-  },
-  activeButton: {
-    backgroundColor: '#007AFF',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
 });
 
-export default PhoneNumberInput;
+export default App;
