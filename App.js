@@ -1,40 +1,58 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
+import CustomTextInput from './CustomTextInput'; // Import the custom component
 
 const PhoneNumberInput = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  const formatPhoneNumber = (number) => {
+    const cleaned = number.replace(/\D/g, '');
+    const match = cleaned.match(/^(84|0)(\d{9})$/);
+    if (match) {
+      return `+84 ${match[2].substring(0, 3)} ${match[2].substring(3, 6)} ${match[2].substring(6)}`;
+    }
+    return number;
+  };
+
   const handlePress = () => {
-    // Xử lý khi nhấn nút "Tiếp tục"
+    if (!validatePhoneNumber(phoneNumber)) {
+      Alert.alert('Số điện thoại không hợp lệ', 'Vui lòng nhập số điện thoại đúng định dạng.');
+      return;
+    }
     console.log('Số điện thoại:', phoneNumber);
+  };
+
+  const validatePhoneNumber = (number) => {
+    const cleaned = number.replace(/\D/g, '');
+    return cleaned.length === 10 || cleaned.length === 11;
+  };
+
+  const handleChangeText = (text) => {
+    const formattedText = formatPhoneNumber(text);
+    setPhoneNumber(formattedText);
   };
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <Text style={styles.header}>Đăng nhập</Text>
-
-      {/* Thanh ngang với đổ bóng */}
       <View style={styles.shadowLine} />
-
       <Text style={styles.subHeader}>Nhập số điện thoại</Text>
-
       <Text style={styles.description}>
         Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại OneHousing Pro
       </Text>
-
-      <TextInput
-        style={styles.input}
+      
+      {/* Use the custom text input component here */}
+      <CustomTextInput
         placeholder="Nhập số điện thoại của bạn"
-        placeholderTextColor="#999"
         keyboardType="phone-pad"
         value={phoneNumber}
-        onChangeText={setPhoneNumber}
+        onChangeText={handleChangeText}
       />
 
       <TouchableOpacity 
-        style={[styles.button, phoneNumber ? styles.activeButton : styles.disabledButton]} 
+        style={[styles.button, validatePhoneNumber(phoneNumber) ? styles.activeButton : styles.disabledButton]} 
         onPress={handlePress}
-        disabled={!phoneNumber}
+        disabled={!validatePhoneNumber(phoneNumber)}
       >
         <Text style={styles.buttonText}>Tiếp tục</Text>
       </TouchableOpacity>
@@ -57,13 +75,13 @@ const styles = StyleSheet.create({
   },
   shadowLine: {
     height: 2,
-    backgroundColor: '#f0f0f0', // Màu của thanh ngang
-    marginBottom: 40, // Khoảng cách giữa tiêu đề và phần nhập
+    backgroundColor: '#f0f0f0',
+    marginBottom: 40,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 3, // Để đổ bóng cho Android
+    elevation: 3,
   },
   subHeader: {
     fontSize: 18,
@@ -73,14 +91,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 10,
     marginBottom: 20,
-  },
-  input: {
-    height: 40,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 20,
-    fontSize: 15,
-    paddingLeft: 10,
   },
   button: {
     height: 50,
