@@ -1,16 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Button } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
 import PhoneNumberInput from './PhoneNumberInput'; // Adjust path if necessary
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AuthProvider, useAuth } from './context/AuthContext'; // Ensure the correct path for AuthContext
 
 // SignInScreen Component
 function SignInScreen({ navigation }) {
+  const { login } = useAuth(); // Get login function from AuthContext
+
   const handlePhoneNumberSubmit = (phoneNumber) => {
     console.log('Số điện thoại:', phoneNumber);
-    // Further processing can go here
-    // Navigate to HomeScreen after phone number submission
-    navigation.navigate('Home');
+    login({ phoneNumber }); // Store the phone number in context
+    navigation.navigate('Home'); // Navigate to HomeScreen
   };
 
   return (
@@ -21,7 +23,7 @@ function SignInScreen({ navigation }) {
       <Text style={styles.description}>
         Dùng số điện thoại để đăng nhập hoặc đăng ký tài khoản tại OneHousing Pro
       </Text>
-      
+
       <PhoneNumberInput onPhoneNumberSubmit={handlePhoneNumberSubmit} />
     </KeyboardAvoidingView>
   );
@@ -29,14 +31,29 @@ function SignInScreen({ navigation }) {
 
 // HomeScreen Component
 function HomeScreen({ navigation }) {
+  const { user, logout } = useAuth(); // Use user from AuthContext
+
+  const handleLogout = () => {
+    logout(); // Clear the phone number
+    navigation.navigate('SignIn'); // Navigate back to the sign-in screen
+  };
+
   return (
-    <View style={styles.center}>
+    <View style={styles.homeContainer}>
       <Text style={styles.homeScreenText}>Home Screen</Text>
-      <View style={styles.spacing} />
-      <Button
-        title="Go to Details"
+      <Text style={styles.welcomeText}>Welcome, {user?.phoneNumber}!</Text>
+      <TouchableOpacity 
+        style={styles.button}
         onPress={() => navigation.navigate('Details')}
-      />
+      >
+        <Text style={styles.buttonText}>Go to Details</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={[styles.button, styles.logoutButton]}
+        onPress={handleLogout}
+      >
+        <Text style={styles.buttonText}>Logout SignIn Screen</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -56,13 +73,15 @@ const Stack = createNativeStackNavigator();
 // App Component
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignIn">
-        <Stack.Screen name="Enter numbers to login" component={SignInScreen} options={{ headerTitleStyle: { fontSize: 26 } }} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Details" component={DetailsScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="SignIn">
+          <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerTitleStyle: { fontSize: 26 } }} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Details" component={DetailsScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
 
@@ -75,18 +94,38 @@ const styles = StyleSheet.create({
     marginTop: 20,
     top: 10,
   },
-  center: {
+  homeContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  homeScreenText: {
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  welcomeText: {
+    fontSize: 16, // Style for welcome message
     marginBottom: 20,
   },
+  button: {
+    backgroundColor: '#1E90FF',
+    padding: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderRadius: 5,
+    width: 200, // Set button width for consistent sizing
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  logoutButton: {
+    backgroundColor: '#FF6347',
+  },
   shadowLine: {
-    height: 2, 
+    height: 2,
     backgroundColor: '#f0f0f0',
     marginBottom: 40,
     shadowColor: '#000',
@@ -104,15 +143,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginBottom: 20,
   },
-  homeScreenText: {
-    fontSize: 20, 
-    marginBottom: 10,
-  },
-  spacing: {
-    height: 25, 
-  },
   detailsScreenText: {
-    fontSize: 24, 
+    fontSize: 24,
     fontWeight: 'bold',
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
