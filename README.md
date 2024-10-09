@@ -6,7 +6,7 @@
 ![alt](anh4.jpg)
 ![alt](anh5.jpg)
 ![alt](anh6.jpg)
-<<<<<<< HEAD
-
-=======
->>>>>>> 82eee5abeac6b5d3054353f9e2c672e295ea6d4f
+==================
+## Kết quả bài tập 8.2
+![alt](anh8(1).jpg)
+![alt](anh8(2).jpg)
